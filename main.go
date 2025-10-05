@@ -24,12 +24,14 @@ var albums = []album{
 /*
 1- Initialize a Gin router with Default
 2- Use the GET function to associate the GET HTTP method and /albums path with getAlbums function handler
-3- Use the POST function to associate the POST HTTP method and /albums path with the addAlbum function handler
-4- Use the Run function to attach the router to an http.Server and start the server
+3- Use the POST function to associate the POST HTTP method and the /albums/:id path with the getAlbumByID function route handler
+4- Use the POST function to associate the POST HTTP method and /albums path with the addAlbum function handler
+5- Use the Run function to attach the router to an http.Server and start the server
 */
 func main() {
 	var router *gin.Engine = gin.Default()
 	router.GET("/albums", getAlbums)
+	router.GET("/albums/:id", getAlbumByID)
 	router.POST("/albums", addAlbum)
 	router.Run("localhost:8080")
 }
@@ -56,4 +58,16 @@ func addAlbum(context *gin.Context) {
 	// Add the new acceptable album to the in-memory slice
 	albums = append(albums, newAlbum)
 	context.IndentedJSON(http.StatusCreated, newAlbum)
+}
+
+func getAlbumByID(context *gin.Context) {
+	var id string = context.Param("id")
+
+	for _, value := range albums {
+		if value.ID == id {
+			context.IndentedJSON(http.StatusOK, value)
+			return
+		}
+	}
+	context.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
 }
