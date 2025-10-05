@@ -22,13 +22,15 @@ var albums = []album{
 } // length = 3, capacity = 3
 
 /*
-Initialize a Gin router with Default
-Use the GET function to associate the GET HTTP method and /albums path with getAlbums function handler
-Use the Run function to attach the router to an http.Server and start the server
+1- Initialize a Gin router with Default
+2- Use the GET function to associate the GET HTTP method and /albums path with getAlbums function handler
+3- Use the POST function to associate the POST HTTP method and /albums path with the addAlbum function handler
+4- Use the Run function to attach the router to an http.Server and start the server
 */
 func main() {
-	var router *gin.Engine = gin.Default() // Initialize a Gin router using Default
-	router.GET("/albums", getAlbums)	   // 	
+	var router *gin.Engine = gin.Default()
+	router.GET("/albums", getAlbums)
+	router.POST("/albums", addAlbum)
 	router.Run("localhost:8080")
 }
 
@@ -40,4 +42,18 @@ which serializes the slice into JSON and add it to the response
 */
 func getAlbums(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, albums)
+}
+
+func addAlbum(context *gin.Context) {
+	var newAlbum album
+
+	// Call BindJSON to bind the request's payload to newAlbum
+	var err error = context.BindJSON(&newAlbum)
+	if err != nil {
+		return
+	}
+
+	// Add the new acceptable album to the in-memory slice
+	albums = append(albums, newAlbum)
+	context.IndentedJSON(http.StatusCreated, newAlbum)
 }
